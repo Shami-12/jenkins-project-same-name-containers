@@ -1,49 +1,42 @@
+```groovy id="cleanjenkinsfile"
 pipeline {
-agent any
+    agent any
 
-```
-environment {
-    BASE_NAME = "my-app"
-    IMAGE_NAME = "my-app-image"
-    REPO_URL = "https://github.com/Shami-12/jenkins-project-same-name-containers.git"
-    BRANCH = "main"
-}
+    environment {
+        BASE_NAME = "my-app"
+        IMAGE_NAME = "my-app-image"
+    }
 
-stages {
+    stages {
 
-    stage('Checkout from GitHub') {
-        steps {
-            git branch: "${BRANCH}", url: "${REPO_URL}"
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME ./docker'
+            }
+        }
+
+        stage('Deploy Containers') {
+            steps {
+                sh '''
+                chmod +x scripts/deploy.sh
+                ./scripts/deploy.sh
+                '''
+            }
         }
     }
 
-    stage('Build Docker Image') {
-        steps {
-            sh '''
-            docker build -t $IMAGE_NAME ./docker
-            '''
+    post {
+        success {
+            echo '🚀 Deployment successful from GitHub!'
         }
-    }
-
-    stage('Deploy Containers') {
-        steps {
-            sh '''
-            chmod +x scripts/deploy.sh
-            ./scripts/deploy.sh
-            '''
+        failure {
+            echo '❌ Deployment failed!'
         }
     }
 }
-
-post {
-    success {
-        echo '🚀 Deployment successful from GitHub!'
-    }
-    failure {
-        echo '❌ Deployment failed!'
-    }
-}
-```
-
-}
-
