@@ -1,4 +1,3 @@
-```groovy id="cleanjenkinsfile"
 pipeline {
     agent any
 
